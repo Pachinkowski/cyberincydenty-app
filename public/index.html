@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestr Cyberincydentów</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #f38020; }
+        .form-container { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        textarea { min-height: 100px; resize: vertical; }
+        button { background: #f38020; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #d66f1a; }
+        .incidents-list { background: white; padding: 20px; border-radius: 8px; }
+        .incident-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination button { margin: 0 5px; }
+        .char-count { font-size: 12px; color: #666; float: right; }
+    </style>
+</head>
+<body>
+    <h1>🔒 Rejestr Cyberincydentów</h1>
+    
+    <div class="form-container">
+        <h2>Dodaj nowy incydent</h2>
+        <form id="incidentForm">
+            <div class="form-group">
+                <label for="klient">Klient (max 30 znaków):</label>
+                <input type="text" id="klient" maxlength="30" required>
+                <span class="char-count" id="klientCount">0/30</span>
+            </div>
+            <div class="form-group">
+                <label for="opis">Opis incydentu (max 500 znaków):</label>
+                <textarea id="opis" maxlength="500" required></textarea>
+                <span class="char-count" id="opisCount">0/500</span>
+            </div>
+            <div class="form-group">
+                <label for="data">Data incydentu:</label>
+                <input type="date" id="data" required>
+            </div>
+            <div class="form-group">
+                <label for="skutki">Skutki incydentu:</label>
+                <textarea id="skutki" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="rozwiazania">Jak rozwiązania Cloudflare mogą pomóc:</label>
+                <textarea id="rozwiazania" required></textarea>
+            </div>
+            <button type="submit">Dodaj incydent</button>
+        </form>
+    </div>
+
+    <div class="incidents-list">
+        <h2>Lista incydentów</h2>
+        <div id="incidentsList"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script>
+        const currentPage = 1;
+        const pageSize = 50;
+
+        // Liczniki znaków
+        document.getElementById('klient').addEventListener('input', (e) => {
+            document.getElementById('klientCount').textContent = `${e.target.value.length}/30`;
+        });
+        document.getElementById('opis').addEventListener('input', (e) => {
+            document.getElementById('opisCount').textContent = `${e.target.value.length}/500`;
+        });
+
+        // Dodawanie incydentu
+        document.getElementById('incidentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                klient: document.getElementById('klient').value,
+                opis_incydentu: document.getElementById('opis').value,
+                data_incydentu: document.getElementById('data').value,
+                skutki_incydentu: document.getElementById('skutki').value,
+                rozwiazania_cloudflare: document.getElementById('rozwiazania').value
+            };
+
+            try {
+                const response = await fetch('/api/incidents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Incydent dodany!');
+                    document.getElementById('incidentForm').reset();
+                    document.getElementById('klientCount').textContent = '0/30';
+                    document.getElementById('opisCount').textContent = '0/500';
+                    loadIncidents(1);
+                } else {
+                    alert('Błąd przy dodawaniu incydentu');
+                }
+            } catch (error) {
+                alert('Błąd: ' + error.message);
+            }
+        });
+
+        // Ładowanie listy incydentów
+        async function loadIncidents(page) {
+            try {
+                const response = await fetch(`/api/incidents?page=${page}&limit=50`);
+                const result = await response.json();
+                
+                const container = document.getElementById('incidentsList');
+                container.innerHTML = '';
+                
+                result.incidents.forEach(incident => {
+                    const card = document.createElement('div');
+                    card.className = 'incident-card';
+                    card.innerHTML = `
+                        <h3>${incident.klient}</h3>
+                        <p><strong>Data:</strong> ${incident.data_incydentu}</p>
+                        <p><strong>Opis:</strong> ${incident.opis_incydentu}</p>
+                        <p><strong>Skutki:</strong> ${incident.skutki_incydentu}</p>
+                        <p><strong>Rozwiązania Cloudflare:</strong> ${incident.rozwiazania_cloudflare}</p>
+                        <button onclick="deleteIncident(${incident.id})">Usuń</button>
+                    `;
+                    container.appendChild(card);
+                });
+
+                // Paginacja
+                const paginationDiv = document.getElementById('pagination');
+                paginationDiv.innerHTML = '';
+                
+                if (page > 1) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.textContent = 'Poprzednia';
+                    prevBtn.onclick = () => loadIncidents(page - 1);
+                    paginationDiv.appendChild(prevBtn);
+                }
+                
+                const pageInfo = document.createElement('span');
+                pageInfo.textContent = ` Strona ${page} (${result.total} incydentów) `;
+                paginationDiv.appendChild(pageInfo);
+                
+                if (result.incidents.length === 50) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.textContent = 'Następna';
+                    nextBtn.onclick = () => loadIncidents(page + 1);
+                    paginationDiv.appendChild(nextBtn);
+                }
+            } catch (error) {
+                alert('Błąd ładowania: ' + error.message);
+            }
+        }
+
+        async function deleteIncident(id) {
+            if (!confirm('Czy na pewno usunąć ten incydent?')) return;
+            
+            try {
+                const response = await fetch(`/api/incidents?id=${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('Incydent usunięty');
+                    loadIncidents(1);
+                } else {
+                    alert('Błąd przy usuwaniu');
+                }
+            } catch (error) {
+                alert('Błąd: ' + error.message);
+            }
+        }
+
+        // Ładowanie przy starcie
+        loadIncidents(1);
+    </script>
+</body>
+</html>
