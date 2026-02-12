@@ -34,12 +34,12 @@
             <div class="form-group">
                 <label for="customer">Customer:</label>
                 <input type="text" id="customer" maxlength="30" required>
-                <span class="char-count" id="klientCount">0/30</span>
+                <span class="char-count" id="customerCount">0/30</span>
             </div>
             <div class="form-group">
-                <label for="opis">Incident description:</label>
+                <label for="description">Incident description:</label>
                 <textarea id="description" maxlength="500" required></textarea>
-                <span class="char-count" id="opisCount">0/500</span>
+                <span class="char-count" id="descriptionCount">0/500</span>
             </div>
             <div class="form-group">
                 <label for="date">Date of the incident:</label>
@@ -71,7 +71,7 @@
         document.getElementById('customer').addEventListener('input', (e) => {
             document.getElementById('CustomerCount').textContent = `${e.target.value.length}/30`;
         });
-        document.getElementById('opis').addEventListener('input', (e) => {
+        document.getElementById('description').addEventListener('input', (e) => {
             document.getElementById('descriptionCount').textContent = `${e.target.value.length}/500`;
         });
 
@@ -80,11 +80,11 @@
             e.preventDefault();
             
             const data = {
-                customer: document.getElementById('klient').value,
+                customer: document.getElementById('customer').value,
                 incident_description: document.getElementById('description').value,
                 incident_date: document.getElementById('date').value,
                 incident_implications: document.getElementById('implications').value,
-                cloudflare_solutions: document.getElementById('solutions').value
+                cloudflare_solution: document.getElementById('solution').value
             };
 
             try {
@@ -97,8 +97,8 @@
                 if (response.ok) {
                     alert('Incident added!');
                     document.getElementById('incidentForm').reset();
-                    document.getElementById('klientCount').textContent = '0/30';
-                    document.getElementById('opisCount').textContent = '0/500';
+                    document.getElementById('customerCount').textContent = '0/30';
+                    document.getElementById('descriptionCount').textContent = '0/500';
                     loadIncidents(1);
                 } else {
                     alert('Error adding incident');
@@ -123,9 +123,9 @@
                     card.innerHTML = `
                         <h3>${incident.customer}</h3>
                         <p><strong>Data:</strong> ${incident.incident_date}</p>
-                        <p><strong>Opis:</strong> ${incident.incident_description}</p>
+                        <p><strong>Description:</strong> ${incident.incident_description}</p>
                         <p><strong>Skutki:</strong> ${incident.incident_implications}</p>
-                        <p><strong>Rozwiązania Cloudflare:</strong> ${incident.cloudflare_solutions}</p>
+                        <p><strong>Rozwiązania Cloudflare:</strong> ${incident.cloudflare_solution}</p>
                         <button onclick="deleteIncident(${incident.id})">Delete</button>
                     `;
                     container.appendChild(card);
