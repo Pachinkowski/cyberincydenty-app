@@ -32,28 +32,28 @@
         <h2>Add incident</h2>
         <form id="incidentForm">
             <div class="form-group">
-                <label for="klient">Customer:</label>
-                <input type="text" id="klient" maxlength="30" required>
+                <label for="customer">Customer:</label>
+                <input type="text" id="customer" maxlength="30" required>
                 <span class="char-count" id="klientCount">0/30</span>
             </div>
             <div class="form-group">
                 <label for="opis">Incident description:</label>
-                <textarea id="opis" maxlength="500" required></textarea>
+                <textarea id="description" maxlength="500" required></textarea>
                 <span class="char-count" id="opisCount">0/500</span>
             </div>
             <div class="form-group">
-                <label for="data">Date of the incident:</label>
-                <input type="date" id="data" required>
+                <label for="date">Date of the incident:</label>
+                <input type="date" id="date" required>
             </div>
             <div class="form-group">
-                <label for="skutki">Incident implications:</label>
-                <textarea id="skutki" required></textarea>
+                <label for="implications">Incident implications:</label>
+                <textarea id="implications" required></textarea>
             </div>
             <div class="form-group">
-                <label for="rozwiazania">How Cloudflare helps mitigate the risk:</label>
-                <textarea id="rozwiazania" required></textarea>
+                <label for="solution">How Cloudflare helps mitigate the risk:</label>
+                <textarea id="solution" required></textarea>
             </div>
-            <button type="submit">Dodaj incydent</button>
+            <button type="submit">Add incident</button>
         </form>
     </div>
 
@@ -68,11 +68,11 @@
         const pageSize = 50;
 
         // Liczniki znaków
-        document.getElementById('klient').addEventListener('input', (e) => {
-            document.getElementById('klientCount').textContent = `${e.target.value.length}/30`;
+        document.getElementById('customer').addEventListener('input', (e) => {
+            document.getElementById('CustomerCount').textContent = `${e.target.value.length}/30`;
         });
         document.getElementById('opis').addEventListener('input', (e) => {
-            document.getElementById('opisCount').textContent = `${e.target.value.length}/500`;
+            document.getElementById('descriptionCount').textContent = `${e.target.value.length}/500`;
         });
 
         // Dodawanie incydentu
@@ -80,11 +80,11 @@
             e.preventDefault();
             
             const data = {
-                klient: document.getElementById('klient').value,
-                opis_incydentu: document.getElementById('opis').value,
-                data_incydentu: document.getElementById('data').value,
-                skutki_incydentu: document.getElementById('skutki').value,
-                rozwiazania_cloudflare: document.getElementById('rozwiazania').value
+                customer: document.getElementById('klient').value,
+                incident_description: document.getElementById('description').value,
+                incident_date: document.getElementById('date').value,
+                incident_implications: document.getElementById('implications').value,
+                cloudflare_solutions: document.getElementById('solutions').value
             };
 
             try {
@@ -95,16 +95,16 @@
                 });
 
                 if (response.ok) {
-                    alert('Incydent dodany!');
+                    alert('Incident added!');
                     document.getElementById('incidentForm').reset();
                     document.getElementById('klientCount').textContent = '0/30';
                     document.getElementById('opisCount').textContent = '0/500';
                     loadIncidents(1);
                 } else {
-                    alert('Błąd przy dodawaniu incydentu');
+                    alert('Error adding incident');
                 }
             } catch (error) {
-                alert('Błąd: ' + error.message);
+                alert('Error: ' + error.message);
             }
         });
 
@@ -122,11 +122,11 @@
                     card.className = 'incident-card';
                     card.innerHTML = `
                         <h3>${incident.customer}</h3>
-                        <p><strong>Data:</strong> ${incident.date_of_the_incident}</p>
+                        <p><strong>Data:</strong> ${incident.incident_date}</p>
                         <p><strong>Opis:</strong> ${incident.incident_description}</p>
-                        <p><strong>Skutki:</strong> ${incident.skutki_incydentu}</p>
-                        <p><strong>Rozwiązania Cloudflare:</strong> ${incident.rozwiazania_cloudflare}</p>
-                        <button onclick="deleteIncident(${incident.id})">Usuń</button>
+                        <p><strong>Skutki:</strong> ${incident.incident_implications}</p>
+                        <p><strong>Rozwiązania Cloudflare:</strong> ${incident.cloudflare_solutions}</p>
+                        <button onclick="deleteIncident(${incident.id})">Delete</button>
                     `;
                     container.appendChild(card);
                 });
