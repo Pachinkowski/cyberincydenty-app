@@ -79,7 +79,7 @@
         document.getElementById('incidentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const data = {
+            const date = {
                 customer: document.getElementById('customer').value,
                 incident_description: document.getElementById('description').value,
                 incident_date: document.getElementById('date').value,
@@ -125,7 +125,7 @@
                         <p><strong>Data:</strong> ${incident.incident_date}</p>
                         <p><strong>Description:</strong> ${incident.incident_description}</p>
                         <p><strong>Skutki:</strong> ${incident.incident_implications}</p>
-                        <p><strong>Rozwiązania Cloudflare:</strong> ${incident.cloudflare_solution}</p>
+                        <p><strong>Cloudflare Solution:</strong> ${incident.cloudflare_solution}</p>
                         <button onclick="deleteIncident(${incident.id})">Delete</button>
                     `;
                     container.appendChild(card);
