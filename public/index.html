@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rejestr Cyberincydentów</title>
+    <title>Cyberincidents Registry</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
         h1 { color: #f38020; }
@@ -26,31 +26,31 @@
     </style>
 </head>
 <body>
-    <h1>🔒 Rejestr Cyberincydentów</h1>
+    <h1>🔒 Cyberincidents Registry</h1>
     
     <div class="form-container">
-        <h2>Dodaj nowy incydent</h2>
+        <h2>Add incident</h2>
         <form id="incidentForm">
             <div class="form-group">
-                <label for="klient">Klient (max 30 znaków):</label>
+                <label for="klient">Customer:</label>
                 <input type="text" id="klient" maxlength="30" required>
                 <span class="char-count" id="klientCount">0/30</span>
             </div>
             <div class="form-group">
-                <label for="opis">Opis incydentu (max 500 znaków):</label>
+                <label for="opis">Incident description:</label>
                 <textarea id="opis" maxlength="500" required></textarea>
                 <span class="char-count" id="opisCount">0/500</span>
             </div>
             <div class="form-group">
-                <label for="data">Data incydentu:</label>
+                <label for="data">Date of the incident:</label>
                 <input type="date" id="data" required>
             </div>
             <div class="form-group">
-                <label for="skutki">Skutki incydentu:</label>
+                <label for="skutki">Incident implications:</label>
                 <textarea id="skutki" required></textarea>
             </div>
             <div class="form-group">
-                <label for="rozwiazania">Jak rozwiązania Cloudflare mogą pomóc:</label>
+                <label for="rozwiazania">How Cloudflare helps mitigate the risk:</label>
                 <textarea id="rozwiazania" required></textarea>
             </div>
             <button type="submit">Dodaj incydent</button>
@@ -58,7 +58,7 @@
     </div>
 
     <div class="incidents-list">
-        <h2>Lista incydentów</h2>
+        <h2>Incidents list</h2>
         <div id="incidentsList"></div>
         <div class="pagination" id="pagination"></div>
     </div>
@@ -121,9 +121,9 @@
                     const card = document.createElement('div');
                     card.className = 'incident-card';
                     card.innerHTML = `
-                        <h3>${incident.klient}</h3>
-                        <p><strong>Data:</strong> ${incident.data_incydentu}</p>
-                        <p><strong>Opis:</strong> ${incident.opis_incydentu}</p>
+                        <h3>${incident.customer}</h3>
+                        <p><strong>Data:</strong> ${incident.date_of_the_incident}</p>
+                        <p><strong>Opis:</strong> ${incident.incident_description}</p>
                         <p><strong>Skutki:</strong> ${incident.skutki_incydentu}</p>
                         <p><strong>Rozwiązania Cloudflare:</strong> ${incident.rozwiazania_cloudflare}</p>
                         <button onclick="deleteIncident(${incident.id})">Usuń</button>
@@ -137,28 +137,28 @@
                 
                 if (page > 1) {
                     const prevBtn = document.createElement('button');
-                    prevBtn.textContent = 'Poprzednia';
+                    prevBtn.textContent = 'Previous';
                     prevBtn.onclick = () => loadIncidents(page - 1);
                     paginationDiv.appendChild(prevBtn);
                 }
                 
                 const pageInfo = document.createElement('span');
-                pageInfo.textContent = ` Strona ${page} (${result.total} incydentów) `;
+                pageInfo.textContent = ` Page ${page} (${result.total} incidents) `;
                 paginationDiv.appendChild(pageInfo);
                 
                 if (result.incidents.length === 50) {
                     const nextBtn = document.createElement('button');
-                    nextBtn.textContent = 'Następna';
+                    nextBtn.textContent = 'Next';
                     nextBtn.onclick = () => loadIncidents(page + 1);
                     paginationDiv.appendChild(nextBtn);
                 }
             } catch (error) {
-                alert('Błąd ładowania: ' + error.message);
+                alert('Loading error: ' + error.message);
             }
         }
 
         async function deleteIncident(id) {
-            if (!confirm('Czy na pewno usunąć ten incydent?')) return;
+            if (!confirm('Are you sure to delete the incident?')) return;
             
             try {
                 const response = await fetch(`/api/incidents?id=${id}`, {
@@ -166,13 +166,13 @@
                 });
                 
                 if (response.ok) {
-                    alert('Incydent usunięty');
+                    alert('Incident deleted');
                     loadIncidents(1);
                 } else {
-                    alert('Błąd przy usuwaniu');
+                    alert('Deletion error');
                 }
             } catch (error) {
-                alert('Błąd: ' + error.message);
+                alert('Error: ' + error.message);
             }
         }
 
