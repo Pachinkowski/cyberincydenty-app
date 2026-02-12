@@ -10,19 +10,18 @@
         .form-container { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         textarea { min-height: 100px; resize: vertical; }
         button { background: #f38020; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
         button:hover { background: #d66f1a; }
         .incidents-list { background: white; padding: 20px; border-radius: 8px; }
-        .incident-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        .incident-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 4px; position: relative; }
         .pagination { margin-top: 20px; text-align: center; }
         .pagination button { margin: 0 5px; }
         .char-count { font-size: 12px; color: #666; float: right; }
-        .incident-card p {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
+        .incident-card p { white-space: pre-wrap; word-wrap: break-word; }
+        .delete-btn { background: #dc3545; float: right; margin-left: 10px;}
+        .delete-btn:hover { background: #a71d2a; }
     </style>
 </head>
 <body>
@@ -79,7 +78,8 @@
         document.getElementById('incidentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const date = {
+            // POPRAWKA NAZEWNICTWA: zmiana 'date' na 'formData' dla czytelności
+            const formData = {
                 customer: document.getElementById('customer').value,
                 incident_description: document.getElementById('description').value,
                 incident_date: document.getElementById('date').value,
@@ -91,7 +91,7 @@
                 const response = await fetch('/api/incidents', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(date)
+                    body: JSON.stringify(formData) // Teraz wysyłamy formData
                 });
 
                 if (response.ok) {
@@ -117,16 +117,25 @@
                 const container = document.getElementById('incidentsList');
                 container.innerHTML = '';
                 
-                result.incidents.forEach(incident => {
+                // ZABEZPIECZENIE: || [] chroni przed błędem, gdy incidents jest puste
+                const incidents = result.incidents || [];
+
+                if (incidents.length === 0) {
+                    container.innerHTML = '<p>No incidents found.</p>';
+                }
+
+                incidents.forEach(incident => {
                     const card = document.createElement('div');
                     card.className = 'incident-card';
+                    // POPRAWKA JĘZYKOWA: 'Skutki' -> 'Implications'
+                    // Dodano też klasę delete-btn dla ładniejszego wyglądu
                     card.innerHTML = `
+                        <button class="delete-btn" onclick="deleteIncident(${incident.id})">Delete</button>
                         <h3>${incident.customer}</h3>
                         <p><strong>Date:</strong> ${incident.incident_date}</p>
                         <p><strong>Description:</strong> ${incident.incident_description}</p>
-                        <p><strong>Skutki:</strong> ${incident.incident_implications}</p>
+                        <p><strong>Implications:</strong> ${incident.incident_implications}</p>
                         <p><strong>Cloudflare Solution:</strong> ${incident.cloudflare_solution}</p>
-                        <button onclick="deleteIncident(${incident.id})">Delete</button>
                     `;
                     container.appendChild(card);
                 });
@@ -143,10 +152,10 @@
                 }
                 
                 const pageInfo = document.createElement('span');
-                pageInfo.textContent = ` Page ${page} (${result.total} incidents) `;
+                pageInfo.textContent = ` Page ${page} (${result.total || 0} incidents) `;
                 paginationDiv.appendChild(pageInfo);
                 
-                if (result.incidents.length === 50) {
+                if (incidents.length === 50) {
                     const nextBtn = document.createElement('button');
                     nextBtn.textContent = 'Next';
                     nextBtn.onclick = () => loadIncidents(page + 1);
