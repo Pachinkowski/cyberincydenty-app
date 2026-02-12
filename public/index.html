@@ -69,7 +69,7 @@
 
         // Liczniki znaków
         document.getElementById('customer').addEventListener('input', (e) => {
-            document.getElementById('CustomerCount').textContent = `${e.target.value.length}/30`;
+            document.getElementById('customerCount').textContent = `${e.target.value.length}/30`;
         });
         document.getElementById('description').addEventListener('input', (e) => {
             document.getElementById('descriptionCount').textContent = `${e.target.value.length}/500`;
@@ -91,7 +91,7 @@
                 const response = await fetch('/api/incidents', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(date)
                 });
 
                 if (response.ok) {
@@ -122,7 +122,7 @@
                     card.className = 'incident-card';
                     card.innerHTML = `
                         <h3>${incident.customer}</h3>
-                        <p><strong>Data:</strong> ${incident.incident_date}</p>
+                        <p><strong>Date:</strong> ${incident.incident_date}</p>
                         <p><strong>Description:</strong> ${incident.incident_description}</p>
                         <p><strong>Skutki:</strong> ${incident.incident_implications}</p>
                         <p><strong>Cloudflare Solution:</strong> ${incident.cloudflare_solution}</p>
